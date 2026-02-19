@@ -59,7 +59,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
-app.get('https://healthstoreplus.onrender.com/api/health', (req, res) => {
+app.get('/', (req, res) => {
   res.json({ status: 'OK', message: 'HealthStore+ API is running' });
 });
 
