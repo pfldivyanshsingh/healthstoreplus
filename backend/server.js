@@ -14,22 +14,25 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middleware - CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   process.env.FRONTEND_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+  process.env.RENDER_EXTERNAL_URL ? process.env.RENDER_EXTERNAL_URL : null
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    // Allow all origins in development, or if origin is in allowed list
+    if (process.env.NODE_ENV === 'development' || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all origins for now, restrict in production
+      // For production, allow all origins (restrict as needed)
+      callback(null, true);
     }
   },
   credentials: true
@@ -56,7 +59,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('https://healthstoreplus.onrender.com/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'HealthStore+ API is running' });
 });
 
@@ -75,13 +78,15 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-// Export for Vercel serverless functions
-export default app;
+// Start server (works for both Render and local development)
+const PORT = process.env.PORT || 5000;
 
 // Only start server if not in Vercel environment
 if (process.env.VERCEL !== '1') {
-  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
+
+// Export for Vercel serverless functions (if needed)
+export default app;
