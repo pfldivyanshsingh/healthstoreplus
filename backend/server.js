@@ -14,7 +14,7 @@ dotenv.config();
 
 const app = express();
 
-// Middleware - CORS
+// Middleware - CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
@@ -46,6 +46,14 @@ mongoose.connect(MONGODB_URI)
     process.exit(1);
   });
 
+
+  app.get('/api', (req, res) => {
+    res.json({
+      status: "OK",
+      message: "API Working"
+    });
+  });
+  
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/medicines', medicineRoutes);
@@ -55,8 +63,8 @@ app.use('/api/health-vitals', healthVitalRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Health check
-app.get('/', (req, res) => {
+// Health check (path only - works for any host including Render)
+app.get('/api', (req, res) => {
   res.json({ status: 'OK', message: 'HealthStore+ API is running' });
 });
 app.get('/api/health', (req, res) => {
